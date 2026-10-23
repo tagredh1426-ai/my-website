@@ -1,0 +1,580 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>مجتمع الفتيات | نادي الحاسبات بجامعة أم القرى</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Font: Tajawal -->
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800&display=swap" rel="stylesheet">
+
+    <!-- Firebase SDKs -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getFirestore, collection, addDoc, getDocs } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+        // 🔑 ضعي مفاتيح مشروعكِ هنا من لوحة تحكم Firebase:
+        const firebaseConfig = {
+            apiKey: "YOUR_API_KEY",
+            authDomain: "YOUR_AUTH_DOMAIN",
+            projectId: "YOUR_PROJECT_ID",
+            storageBucket: "YOUR_STORAGE_BUCKET",
+            messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
+            appId: "YOUR_APP_ID"
+        };
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        // Expose database functions globally to the app
+        window.db = db;
+        window.collection = collection;
+        window.addDoc = addDoc;
+        window.getDocs = getDocs;
+
+        // Trigger loading profiles once Firebase initializes
+        if (window.initAppAfterFirebase) {
+            window.initAppAfterFirebase();
+        }
+    </script>
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        uqgreen: {
+                            50: '#f0f7f4',
+                            100: '#dbece4',
+                            200: '#b8dad0',
+                            300: '#8bc1b3',
+                            400: '#5ba292',
+                            500: '#0A6B43', // UQU Emerald Green
+                            600: '#005A36', // UQU Royal Green
+                            700: '#00472a',
+                            800: '#003721',
+                            900: '#002919',
+                        },
+                        uqgold: {
+                            50: '#fcfaf2',
+                            100: '#f7f2dd',
+                            200: '#efe2b8',
+                            300: '#e5cd8a',
+                            400: '#d9b45b',
+                            500: '#D4AF37', // Metallic Gold
+                            600: '#C5A059', // Muted Accent Gold
+                            700: '#9e7b33',
+                            800: '#7e602b',
+                        },
+                        uquivory: '#F8F9FA',
+                    },
+                    fontFamily: {
+                        sans: ['Tajawal', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            font-family: 'Tajawal', sans-serif;
+            background: linear-gradient(135deg, #F8F9FA 0%, #EFEFEF 50%, #E6EAE8 100%);
+            min-height: 100vh;
+        }
+        .glass-card {
+            background: rgba(255, 255, 255, 0.92);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(0, 90, 54, 0.1);
+        }
+        .btn-uqu {
+            background: linear-gradient(135deg, #005A36 0%, #0A6B43 100%);
+            color: #ffffff;
+            transition: all 0.3s ease;
+            border: 1px solid rgba(212, 175, 55, 0.3);
+        }
+        .btn-uqu:hover {
+            opacity: 0.95;
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px -5px rgba(0, 90, 54, 0.4);
+        }
+        /* Custom scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f0f7f4;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #0A6B43;
+            border-radius: 10px;
+        }
+    </style>
+</head>
+<body class="text-gray-800 flex flex-col min-h-screen">
+
+    <!-- Top Disclaimer Bar -->
+    <div class="bg-uqgreen-800 text-uqgold-300 text-center py-2 px-4 text-xs font-medium border-b border-uqgold-500/30 flex items-center justify-center gap-2">
+        <i class="fa-solid fa-circle-info text-uqgold-400"></i>
+        <span><strong>مبادرة غير رسمية</strong> – من طالبات نادي الحاسبات بجامعة أم القرى</span>
+    </div>
+
+    <!-- Header Section -->
+    <header class="sticky top-0 z-40 glass-card border-b border-uqgreen-100 shadow-sm">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3.5 flex justify-between items-center">
+            <div class="flex items-center space-x-3 space-x-reverse">
+                <div class="w-11 h-11 rounded-2xl btn-uqu flex items-center justify-center text-uqgold-400 shadow-md text-xl font-bold">
+                    <i class="fa-solid fa-laptop-code"></i>
+                </div>
+                <div>
+                    <h1 class="text-lg sm:text-xl font-extrabold text-uqgreen-600 flex items-center gap-1.5">
+                        <span>دليل الفتيات</span>
+                        <span class="text-xs bg-uqgold-100 text-uqgreen-700 font-bold px-2 py-0.5 rounded-full border border-uqgold-300">نادي كلية الحاسبات</span>
+                    </h1>
+                    <p class="text-[11px] text-gray-500">منصة لمشاركة وتواصل طالبات ومبدعات الكلية والنادي</p>
+                </div>
+            </div>
+
+            <button onclick="openModal()" class="btn-uqu text-white px-4 sm:px-5 py-2.5 rounded-2xl font-medium shadow-md flex items-center gap-2 text-xs sm:text-sm">
+                <i class="fa-solid fa-plus-circle text-uqgold-400 text-base"></i>
+                <span>إضافة حسابي</span>
+            </button>
+        </div>
+    </header>
+
+    <!-- Hero Banner -->
+    <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6 pb-2 text-center">
+        <div class="glass-card p-6 sm:p-8 rounded-3xl shadow-lg relative overflow-hidden border border-uqgreen-200/60">
+            <div class="absolute -top-10 -right-10 w-40 h-40 bg-uqgreen-100/60 rounded-full blur-2xl"></div>
+            <div class="absolute -bottom-10 -left-10 w-40 h-40 bg-uqgold-100/60 rounded-full blur-2xl"></div>
+
+            <div class="relative z-10 max-w-2xl mx-auto">
+                <span class="inline-block px-3.5 py-1 rounded-full bg-uqgreen-50 text-uqgreen-700 text-xs font-bold mb-3 border border-uqgreen-200">
+                    🌿 مبادرة طالبات كلية الحاسبات
+                </span>
+                <h2 class="text-2xl sm:text-3xl font-extrabold text-uqgreen-700 mb-2 leading-relaxed">
+                    تواصلوا، ابدعوا، وادعموا! 🎓✨
+                </h2>
+                <p class="text-gray-600 text-xs sm:text-sm mb-4 leading-relaxed">
+                    مساحة مخصصة للفتيات لمشاركة حسابات التواصل الاجتماعي المهنية والإبداعية. شاركي منصاتك واكتشفي زميلتك في تخصصات الحاسب والعلوم المختلفة.
+                </p>
+
+                <!-- Notice Banner in Hero -->
+                <div class="bg-uqgold-50 border border-uqgold-300/60 rounded-xl p-3 text-xs text-uqgold-800 flex items-center justify-center gap-2 text-right sm:text-center">
+                    <i class="fa-solid fa-shield-cat text-uqgold-600 text-base shrink-0"></i>
+                    <span><strong>تنويه هام:</strong> هذا الرابط والمبادرة عمل جهدي غير رسمي من طالبات نادي الحاسبات ولا يمثل الموقف الرسمي لجامعة أم القرى.</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Main Content Container -->
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-6 flex-grow w-full">
+
+        <!-- Search and Filter Controls -->
+        <div class="glass-card p-4 rounded-2xl shadow-sm mb-6 flex flex-col md:flex-row gap-4 items-center justify-between border border-uqgreen-100">
+            <!-- Search Bar -->
+            <div class="relative w-full md:w-1/2">
+                <i class="fa-solid fa-magnifying-glass absolute right-4 top-1/2 -translate-y-1/2 text-uqgreen-500"></i>
+                <input type="text" id="searchInput" oninput="filterProfiles()" placeholder="ابحثي باسم الفتاة، التخصص، أو الاهتمام..."
+                    class="w-full pl-4 pr-11 py-2.5 rounded-xl border border-uqgreen-200 bg-white/80 focus:bg-white focus:outline-none focus:ring-2 focus:ring-uqgreen-500 text-xs sm:text-sm transition-all shadow-inner">
+            </div>
+
+            <!-- Category Filter Pills -->
+            <div class="w-full md:w-auto flex items-center gap-2 overflow-x-auto pb-2 md:pb-0 scrollbar-none" id="categoryFilters">
+                <!-- Filters generated dynamically -->
+            </div>
+        </div>
+
+        <!-- Loading Indicator -->
+        <div id="loadingState" class="text-center py-12">
+            <i class="fa-solid fa-spinner fa-spin text-uqgreen-600 text-3xl mb-2"></i>
+            <p class="text-xs text-gray-500">جاري جلب البطاقات من السحابة...</p>
+        </div>
+
+        <!-- Profiles Grid Section -->
+        <div id="profilesGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            <!-- Cards generated dynamically -->
+        </div>
+
+        <!-- Empty State -->
+        <div id="emptyState" class="text-center py-16 glass-card rounded-3xl mt-2 border border-uqgreen-200/50 hidden">
+            <div class="w-20 h-20 mx-auto mb-4 rounded-full bg-uqgreen-50 text-uqgreen-600 flex items-center justify-center text-3xl border border-uqgreen-200">
+                <i class="fa-solid fa-seedling"></i>
+            </div>
+            <h3 class="text-lg font-bold text-uqgreen-800">لا توجد حسابات مضافة حتى الآن! 🌸</h3>
+            <p class="text-gray-500 text-xs sm:text-sm mt-1 max-w-md mx-auto leading-relaxed">
+                كوني الأولى في ترك بصمتك! أضيفي حساباتك الآن وكوني المبادِرة بين طالبات النادي والجامعة.
+            </p>
+            <button onclick="openModal()" class="btn-uqu text-white px-6 py-2.5 rounded-2xl font-bold shadow-md mt-5 inline-flex items-center gap-2 text-xs sm:text-sm">
+                <i class="fa-solid fa-plus-circle text-uqgold-400"></i>
+                <span>أضيفي حسابك كأول مشاركة</span>
+            </button>
+        </div>
+
+    </main>
+
+    <!-- Footer Disclaimer -->
+    <footer class="bg-uqgreen-900 text-gray-300 mt-12 py-6 border-t-2 border-uqgold-500">
+        <div class="max-w-7xl mx-auto px-4 text-center text-xs space-y-2">
+            <p class="font-bold text-uqgold-400">
+                ✨ مبادرة طالبات نادي الحاسبات بجامعة أم القرى ✨
+            </p>
+            <p class="text-gray-400 max-w-2xl mx-auto text-[11px] leading-relaxed">
+                إخلاء مسؤولية: هذه الصفحة والمبادرة هي نشاط طلابي غير رسمي قام بإعداده طالبات نادي الحاسبات والصفحة غير تابعة بشكل رسمي لإدارة جامعة أم القرى. جميع الحسابات المضافة تقع تحت المسؤولية الشخصية لأصحابها.
+            </p>
+            <p class="text-gray-500 text-[10px] pt-2">جامعة أم القرى - مكة المكرمة</p>
+        </div>
+    </footer>
+
+    <!-- Add Profile Modal -->
+    <div id="profileModal" class="fixed inset-0 z-50 hidden bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 overflow-y-auto">
+        <div class="bg-white rounded-3xl shadow-2xl max-w-lg w-full p-6 sm:p-8 relative border border-uqgreen-200 my-8 transform transition-all">
+
+            <!-- Close Button -->
+            <button onclick="closeModal()" class="absolute top-5 left-5 text-gray-400 hover:text-gray-600 w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center transition-colors">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+
+            <!-- Modal Header -->
+            <div class="text-center mb-6">
+                <div class="w-12 h-12 bg-uqgreen-50 text-uqgreen-600 rounded-2xl flex items-center justify-center text-xl mx-auto mb-2 border border-uqgreen-200">
+                    <i class="fa-solid fa-user-plus text-uqgold-600"></i>
+                </div>
+                <h3 class="text-lg font-bold text-uqgreen-800">إضافة بطاقة حساب جديدة ✨</h3>
+                <p class="text-xs text-gray-500 mt-1">انضمي لدليل طالبات النادي وشاركي منصاتك المهنية والشخصية</p>
+            </div>
+
+            <!-- Form -->
+            <form id="addProfileForm" onsubmit="handleFormSubmit(event)" class="space-y-4">
+
+                <!-- Full Name -->
+                <div>
+                    <label class="block text-xs font-bold text-gray-700 mb-1">الاسم / الاسم المستعار <span class="text-red-500">*</span></label>
+                    <input type="text" id="name" required placeholder="مثال: امجاد العتيبي"
+                        class="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-uqgreen-500 text-xs sm:text-sm">
+                </div>
+
+                <!-- Interests / Field -->
+                <div>
+                    <label class="block text-xs font-bold text-gray-700 mb-1">التخصص / المجال الرئيسي <span class="text-red-500">*</span></label>
+                    <select id="category" required class="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-uqgreen-500 text-xs sm:text-sm bg-white">
+                        <option value="" disabled selected>اختاري التخصص/الاهتمام</option>
+                        <option value="علوم حاسب">علوم حاسب 💻</option>
+                        <option value="هندسة حاسب">هندسة حاسب ⚡</option>
+                        <option value="هندسة البرمجيات">هندسة البرمجيات 📊</option>
+                        <option value="ذكاء اصطناعي">ذكاء اصطناعي 🤖</option>
+                        <option value="أمن سيبراني">أمن سيبراني 🛡️</option>
+                        <option value="تخصصات أخرى بالجامعة">تخصصات أخرى بالجامعة 🎓</option>
+                    </select>
+                </div>
+
+                <!-- Bio -->
+                <div>
+                    <label class="block text-xs font-bold text-gray-700 mb-1">نبذة قصيرة (Bio) <span class="text-red-500">*</span></label>
+                    <textarea id="bio" required rows="2" maxlength="120" placeholder="اكتبي نبذة بسيطة عنك، اهتماماتك التقنية، أو شغفك..."
+                        class="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-uqgreen-500 text-xs sm:text-sm"></textarea>
+                </div>
+
+                <!-- Avatar Selection -->
+                <div>
+                    <label class="block text-xs font-bold text-gray-700 mb-1">اختاري الرمز التعبيري للبطاقة 🌸</label>
+                    <div class="flex gap-2 overflow-x-auto py-1" id="avatarSelector">
+                        <!-- Emoji Avatars selection loaded by JS -->
+                    </div>
+                </div>
+
+                <!-- Social Links Header -->
+                <div class="pt-2 border-t border-gray-100">
+                    <p class="text-xs font-bold text-uqgreen-800 mb-2">روابط حساباتك التواصلية (أدخلي ما ترغبين بشاركته):</p>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <div class="relative">
+                            <i class="fa-brands fa-linkedin absolute right-3 top-1/2 -translate-y-1/2 text-blue-600"></i>
+                            <input type="text" id="linkedin" placeholder="رابط LinkedIn"
+                                class="w-full pr-9 pl-3 py-2 rounded-xl border border-gray-200 text-xs focus:ring-2 focus:ring-blue-300 focus:outline-none">
+                        </div>
+                        <div class="relative">
+                            <i class="fa-brands fa-x-twitter absolute right-3 top-1/2 -translate-y-1/2 text-gray-800"></i>
+                            <input type="text" id="twitter" placeholder="حساب منصة إكس (تويتر)"
+                                class="w-full pr-9 pl-3 py-2 rounded-xl border border-gray-200 text-xs focus:ring-2 focus:ring-gray-300 focus:outline-none">
+                        </div>
+                        <div class="relative">
+                            <i class="fa-brands fa-instagram absolute right-3 top-1/2 -translate-y-1/2 text-pink-600"></i>
+                            <input type="text" id="instagram" placeholder="حساب انستغرام"
+                                class="w-full pr-9 pl-3 py-2 rounded-xl border border-gray-200 text-xs focus:ring-2 focus:ring-pink-300 focus:outline-none">
+                        </div>
+                        <div class="relative">
+                            <i class="fa-brands fa-github absolute right-3 top-1/2 -translate-y-1/2 text-gray-900"></i>
+                            <input type="text" id="github" placeholder="حساب GitHub"
+                                class="w-full pr-9 pl-3 py-2 rounded-xl border border-gray-200 text-xs focus:ring-2 focus:ring-gray-400 focus:outline-none">
+                        </div>
+                        <div class="relative">
+                            <i class="fa-brands fa-tiktok absolute right-3 top-1/2 -translate-y-1/2 text-black"></i>
+                            <input type="text" id="tiktok" placeholder="حساب تيك توك"
+                                class="w-full pr-9 pl-3 py-2 rounded-xl border border-gray-200 text-xs focus:ring-2 focus:ring-gray-300 focus:outline-none">
+                        </div>
+                        <div class="relative">
+                            <i class="fa-brands fa-youtube absolute right-3 top-1/2 -translate-y-1/2 text-red-600"></i>
+                            <input type="text" id="youtube" placeholder="قناة يوتيوب"
+                                class="w-full pr-9 pl-3 py-2 rounded-xl border border-gray-200 text-xs focus:ring-2 focus:ring-red-300 focus:outline-none">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Submit Button -->
+                <button type="submit" id="submitBtn" class="w-full btn-uqu text-white py-3 rounded-2xl font-bold shadow-lg mt-4 text-xs sm:text-sm">
+                    حفظ ونشر بطاقتي في السحابة ✨
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Custom Notification Toast -->
+    <div id="toast" class="fixed bottom-5 right-5 z-50 hidden bg-uqgreen-900 text-white px-5 py-3 rounded-2xl shadow-xl flex items-center gap-3 border border-uqgold-500/50 transition-all duration-300">
+        <i class="fa-solid fa-circle-check text-uqgold-400 text-lg"></i>
+        <span id="toastMsg" class="text-xs sm:text-sm font-medium">تمت العملية بنجاح!</span>
+    </div>
+
+    <!-- Cloud Application Logic -->
+    <script>
+        const categories = [
+            "الكل",
+            "علوم حاسب",
+            "هندسة حاسب",
+            "هندسة البرمجيات",
+            "ذكاء اصطناعي",
+            "أمن سيبراني",
+            "تخصصات أخرى بالجامعة"
+        ];
+
+        const emojiAvatars = ["👩‍💻", "🤖", "🛡️", "👩‍🎨", "🎓", "📸", "🌷", "📚", "✨", "👑", "💻"];
+        let selectedAvatar = "👩‍💻";
+
+        let profiles = [];
+        let activeCategory = "الكل";
+
+        const profilesGrid = document.getElementById('profilesGrid');
+        const emptyState = document.getElementById('emptyState');
+        const loadingState = document.getElementById('loadingState');
+        const categoryFilters = document.getElementById('categoryFilters');
+        const searchInput = document.getElementById('searchInput');
+        const profileModal = document.getElementById('profileModal');
+        const avatarSelector = document.getElementById('avatarSelector');
+
+        // Called once Firebase is ready
+        window.initAppAfterFirebase = function() {
+            fetchProfilesFromCloud();
+        };
+
+        window.onload = function() {
+            renderCategoryFilters();
+            renderAvatarSelector();
+            if (window.db) {
+                fetchProfilesFromCloud();
+            }
+        };
+
+        // Fetch Data from Firestore Cloud Database
+        async function fetchProfilesFromCloud() {
+            try {
+                const querySnapshot = await window.getDocs(window.collection(window.db, "uqu_profiles"));
+                profiles = [];
+                querySnapshot.forEach((doc) => {
+                    profiles.push({ id: doc.id, ...doc.data() });
+                });
+                loadingState.classList.add('hidden');
+                filterProfiles();
+            } catch (error) {
+                console.error("Error fetching profiles: ", error);
+                loadingState.innerHTML = '<p class="text-red-500 text-xs">تعذر الاتصال بقاعدة البيانات. تأكد من صحة إعدادات Firebase.</p>';
+            }
+        }
+
+        function renderCategoryFilters() {
+            categoryFilters.innerHTML = categories.map(cat => `
+                <button onclick="setCategory('${cat}')"
+                    class="px-3.5 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap transition-all ${
+                        activeCategory === cat
+                        ? 'btn-uqu text-white shadow-sm'
+                        : 'bg-white/80 text-uqgreen-800 border border-uqgreen-100 hover:bg-uqgreen-50'
+                    }">
+                    ${cat}
+                </button>
+            `).join('');
+        }
+
+        function setCategory(cat) {
+            activeCategory = cat;
+            renderCategoryFilters();
+            filterProfiles();
+        }
+
+        function renderAvatarSelector() {
+            avatarSelector.innerHTML = emojiAvatars.map(emoji => `
+                <button type="button" onclick="selectAvatar('${emoji}')"
+                    class="w-10 h-10 rounded-xl flex items-center justify-center text-xl border-2 transition-all shrink-0 ${
+                        selectedAvatar === emoji ? 'border-uqgreen-500 bg-uqgreen-50 scale-105' : 'border-gray-200 bg-white hover:bg-gray-50'
+                    }">
+                    ${emoji}
+                </button>
+            `).join('');
+        }
+
+        function selectAvatar(emoji) {
+            selectedAvatar = emoji;
+            renderAvatarSelector();
+        }
+
+        function filterProfiles() {
+            const query = searchInput.value.trim().toLowerCase();
+
+            const filtered = profiles.filter(p => {
+                const matchesCategory = (activeCategory === "الكل") || (p.category === activeCategory);
+                const matchesSearch = p.name.toLowerCase().includes(query) ||
+                                     p.bio.toLowerCase().includes(query) ||
+                                     p.category.toLowerCase().includes(query);
+                return matchesCategory && matchesSearch;
+            });
+
+            renderProfiles(filtered);
+        }
+
+        function renderProfiles(listToRender = profiles) {
+            if (listToRender.length === 0) {
+                profilesGrid.innerHTML = '';
+                emptyState.classList.remove('hidden');
+                return;
+            }
+
+            emptyState.classList.add('hidden');
+
+            profilesGrid.innerHTML = listToRender.map(p => {
+                return `
+                <div class="glass-card rounded-3xl p-6 flex flex-col justify-between hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 relative group border border-uqgreen-100">
+                    <div>
+                        <div class="flex items-center justify-between mb-3">
+                            <span class="text-[11px] font-bold px-3 py-1 rounded-full bg-uqgreen-50 text-uqgreen-700 border border-uqgreen-200">
+                                ${p.category}
+                            </span>
+                            <span class="text-[10px] text-uqgold-600 font-bold bg-uqgold-50 px-2 py-0.5 rounded-md border border-uqgold-200">طالبة</span>
+                        </div>
+
+                        <div class="text-center mb-4">
+                            <div class="w-16 h-16 mx-auto rounded-2xl bg-gradient-to-tr from-uqgreen-100 to-uqgold-100 flex items-center justify-center text-3xl shadow-inner mb-3 border border-uqgreen-200/50">
+                                ${p.avatar || '👩‍💻'}
+                            </div>
+                            <h3 class="font-extrabold text-uqgreen-800 text-base">${escapeHtml(p.name)}</h3>
+                            <p class="text-gray-600 text-xs mt-2 line-clamp-3 leading-relaxed min-h-[2.8rem]">
+                                ${escapeHtml(p.bio)}
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="pt-3 border-t border-gray-100">
+                        <p class="text-[10px] text-center font-bold text-gray-400 mb-2">منصات التواصل</p>
+                        <div class="flex flex-wrap items-center justify-center gap-2">
+                            ${renderSocialButton('linkedin', p.socials?.linkedin, 'fa-brands fa-linkedin', 'bg-blue-600 text-white', 'لينكد إن')}
+                            ${renderSocialButton('twitter', p.socials?.twitter, 'fa-brands fa-x-twitter', 'bg-gray-800 text-white', 'إكس')}
+                            ${renderSocialButton('instagram', p.socials?.instagram, 'fa-brands fa-instagram', 'bg-gradient-to-tr from-amber-500 via-rose-500 to-purple-600 text-white', 'انستغرام')}
+                            ${renderSocialButton('github', p.socials?.github, 'fa-brands fa-github', 'bg-gray-900 text-white', 'GitHub')}
+                            ${renderSocialButton('tiktok', p.socials?.tiktok, 'fa-brands fa-tiktok', 'bg-black text-white', 'تيك توك')}
+                            ${renderSocialButton('youtube', p.socials?.youtube, 'fa-brands fa-youtube', 'bg-red-600 text-white', 'يوتيوب')}
+                        </div>
+                    </div>
+                </div>
+                `;
+            }).join('');
+        }
+
+        function renderSocialButton(type, handle, iconClass, colorClass, label) {
+            if (!handle || handle.trim() === '') return '';
+
+            let url = '#';
+            const cleanHandle = handle.trim().replace('@', '');
+
+            switch(type) {
+                case 'linkedin': url = cleanHandle.startsWith('http') ? cleanHandle : `https://linkedin.com/in/${cleanHandle}`; break;
+                case 'twitter': url = `https://x.com/${cleanHandle}`; break;
+                case 'instagram': url = `https://instagram.com/${cleanHandle}`; break;
+                case 'github': url = `https://github.com/${cleanHandle}`; break;
+                case 'tiktok': url = `https://tiktok.com/@${cleanHandle}`; break;
+                case 'youtube': url = cleanHandle.startsWith('http') ? cleanHandle : `https://youtube.com/@${cleanHandle}`; break;
+            }
+
+            return `
+                <a href="${url}" target="_blank" rel="noopener noreferrer"
+                   title="${label}: ${cleanHandle}"
+                   class="w-8 h-8 rounded-lg ${colorClass} flex items-center justify-center text-xs shadow-sm hover:opacity-85 hover:scale-110 transition-all">
+                    <i class="${iconClass}"></i>
+                </a>
+            `;
+        }
+
+        function openModal() {
+            profileModal.classList.remove('hidden');
+        }
+
+        function closeModal() {
+            profileModal.classList.add('hidden');
+        }
+
+        // Save New Profile directly to Cloud Firestore
+        async function handleFormSubmit(e) {
+            e.preventDefault();
+
+            const submitBtn = document.getElementById('submitBtn');
+            submitBtn.disabled = true;
+            submitBtn.innerText = "جاري الحفظ في السحابة... ⏳";
+
+            const newProfile = {
+                name: document.getElementById('name').value.trim(),
+                category: document.getElementById('category').value,
+                bio: document.getElementById('bio').value.trim(),
+                avatar: selectedAvatar,
+                socials: {
+                    linkedin: document.getElementById('linkedin').value,
+                    twitter: document.getElementById('twitter').value,
+                    instagram: document.getElementById('instagram').value,
+                    github: document.getElementById('github').value,
+                    tiktok: document.getElementById('tiktok').value,
+                    youtube: document.getElementById('youtube').value,
+                },
+                createdAt: new Date()
+            };
+
+            try {
+                await window.addDoc(window.collection(window.db, "uqu_profiles"), newProfile);
+                await fetchProfilesFromCloud();
+
+                document.getElementById('addProfileForm').reset();
+                closeModal();
+                showToast('تمت إضافة بطاقتك ونشرها سحابياً بنجاح! 🌿✨');
+            } catch (error) {
+                console.error("Error adding document: ", error);
+                alert("حدث خطأ أثناء الحفظ بالسحابة، تأكد من تفعيل Firestore Database في حسابك.");
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.innerText = "حفظ ونشر بطاقتي في السحابة ✨";
+            }
+        }
+
+        function showToast(msg) {
+            const toast = document.getElementById('toast');
+            const toastMsg = document.getElementById('toastMsg');
+            toastMsg.innerText = msg;
+            toast.classList.remove('hidden');
+            setTimeout(() => {
+                toast.classList.add('hidden');
+            }, 3500);
+        }
+
+        function escapeHtml(str) {
+            return str ? str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;") : '';
+        }
+    </script>
+</body>
+</html>
